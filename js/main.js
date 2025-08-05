@@ -381,6 +381,11 @@ function drawCountryCostChart(transitionMode) {
         let barHeight = gmynd.map(value, 0, maxCost, 0, chartHeight);
         let barTop = margin.top + (chartHeight - barHeight);
 
+          // 添加收入分类颜色系统
+        const income = parseFloat(country["TagGNI"]);
+        const incomeCategory = getIncomeCategory(income);
+        const categoryColor = getIncomeCategoryColor(incomeCategory);
+
         let barTopDiv = document.createElement("div");
         barTopDiv.classList.add("bar");
         barTopDiv.style.position = "absolute";
@@ -388,7 +393,8 @@ function drawCountryCostChart(transitionMode) {
         barTopDiv.style.top = `${barTop}px`;
         barTopDiv.style.width = `${barWidth}px`;
         barTopDiv.style.height = `${barHeight}px`;
-        barTopDiv.style.background = "#FED5E1";
+        barTopDiv.style.backgroundColor = categoryColor; // 使用收入分类颜色
+        barTopDiv.style.opacity = "0.5";
         barTopDiv.style.transition = "height 0.5s, top 0.5s";
 
         barTopDiv.addEventListener("mouseenter", (event) => {

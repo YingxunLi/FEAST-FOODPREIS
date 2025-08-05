@@ -152,7 +152,7 @@ body {
         transform 0.3s cubic-bezier(.4,0,.2,1);
     border-radius: 8px;
     opacity: 1;
-    background-color: #FED5E1;
+    /* background-color: #E1E5E8; */
     z-index: 1;
     border: 0 solid transparent;
 }
@@ -170,7 +170,6 @@ body {
 }
 
 .bar.cost {
-    /* background-color: #FED5E1; */
     opacity: 0.5;
     z-index: 1000;
 }
@@ -202,7 +201,7 @@ body {
     opacity: 0.5 !important;
 }
 .bar.ratio-fg {
-    background-color: #FED5E1;
+    background-color: #E1E5E8;
     opacity: 0.5;
     z-index: 2;
 }
@@ -217,6 +216,7 @@ body {
 .bar:not(.income):not(.cost):not(.ratio-bg):not(.ratio-fg):not(.bar-to-dot):not(.food-segment).active,
 .bar:not(.income):not(.cost):not(.ratio-bg):not(.ratio-fg):not(.bar-to-dot):not(.food-segment):hover {
     opacity: 1 !important;
+    z-index: 2;
     /* 只改变透明度，保持原有背景色 */
 }
 
