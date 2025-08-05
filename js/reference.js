@@ -15,37 +15,6 @@ let currentTopField = "Cost"; // "Cost" | "TagGNI" | "Vergleich" -- button
 let currentField = "Cost"; // "Cost" | "TagGNI" | "Vergleich" -- diagram
 let selectedFoodKey = null;
 
-// ----------- 收入分类 ----------- 
-function getIncomeCategory(income) {
-  if (income <= 8.22) return 'low';
-  if (income <= 21.92) return 'lower-middle';
-  if (income <= 54.79) return 'upper-middle';
-  return 'high';
-}
-
-function getIncomeCategoryColor(category) {
-  const colors = {
-    'low': '#ae4261',        // 最浅粉色
-    'lower-middle': '#f3ca00', // 浅粉色
-    'upper-middle': '#00a36f', // 中粉色
-    'high': '#f0a08c'         // 深粉色
-    //     'low': '#FED5E1',        // 最浅粉色
-    // 'lower-middle': '#FDB8CD', // 浅粉色
-    // 'upper-middle': '#FD96B3', // 中粉色
-    // 'high': '#E7749F'         // 深粉色
-  };
-  return colors[category];
-}
-
-function getIncomeCategoryLabel(category) {
-  const labels = {
-    'low': 'Low Income (≤$2.86/day)',
-    'lower-middle': 'Lower-Middle Income ($2.87-$11.22/day)',
-    'upper-middle': 'Upper-Middle Income ($11.23-$34.78/day)',
-    'high': 'High Income (≥$34.79/day)'
-  };
-  return labels[category];
-}
 // ----------- render mode ----------- 
 function renderTopArea(mode) {
   let renderer = document.querySelector('#renderer');
@@ -287,7 +256,7 @@ function drawCountryCostChart(transitionMode) {
       },
       ...foodAverages.map((food, idx) => ({
         key: food.key,
-        // color: colors[idx],
+        color: colors[idx],
         selected: selectedFoodKey === food.key,
         onClick: () => {
           selectedFoodKey = selectedFoodKey === food.key ? null : food.key;
@@ -301,7 +270,7 @@ function drawCountryCostChart(transitionMode) {
       item.className = "legend-item" + (itemData.selected ? " selected" : "");
       let colorBox = document.createElement("span");
       colorBox.className = "legend-color";
-      // colorBox.style.background = itemData.color;
+      colorBox.style.background = itemData.color;
       item.appendChild(colorBox);
       let label = document.createElement("span");
       label.textContent = itemData.key;
@@ -345,6 +314,15 @@ function drawCountryCostChart(transitionMode) {
     }));
     foodAverages.sort((a, b) => b.avg - a.avg);
 
+    const colors = [
+      "hsl(343, 96%, 97.8%)",
+      "hsl(343, 96%, 95%)",
+      "hsl(343, 96%, 91.5%)",
+      "hsl(343, 96%, 86.5%)",
+      "hsl(343, 96%, 80.5%)",
+      "hsl(343, 96%, 73%)"
+    ];
+
     data.forEach((country, i) => {
       let yStack = margin.top + chartHeight;
       const xPos = margin.left + i * (barWidth + gap);
@@ -381,11 +359,6 @@ function drawCountryCostChart(transitionMode) {
         let barHeight = gmynd.map(value, 0, maxCost, 0, chartHeight);
         let barTop = margin.top + (chartHeight - barHeight);
 
-          // 添加收入分类颜色系统
-        const income = parseFloat(country["TagGNI"]);
-        const incomeCategory = getIncomeCategory(income);
-        const categoryColor = getIncomeCategoryColor(incomeCategory);
-
         let barTopDiv = document.createElement("div");
         barTopDiv.classList.add("bar");
         barTopDiv.style.position = "absolute";
@@ -393,8 +366,7 @@ function drawCountryCostChart(transitionMode) {
         barTopDiv.style.top = `${barTop}px`;
         barTopDiv.style.width = `${barWidth}px`;
         barTopDiv.style.height = `${barHeight}px`;
-        barTopDiv.style.backgroundColor = categoryColor; // 使用收入分类颜色
-        barTopDiv.style.opacity = "0.5";
+        barTopDiv.style.background = "#FED5E1";
         barTopDiv.style.transition = "height 0.5s, top 0.5s";
 
         barTopDiv.addEventListener("mouseenter", (event) => {
@@ -426,32 +398,20 @@ function drawCountryCostChart(transitionMode) {
           seg.style.top = `${yStack}px`;
           seg.style.width = `${barWidth}px`;
           seg.style.height = `${barHeight}px`;
-
-          // 使用收入分类颜色而不是固定的粉色系
-          const income = parseFloat(country["TagGNI"]);
-          const incomeCategory = getIncomeCategory(income);
-          const categoryColor = getIncomeCategoryColor(incomeCategory);
-          
-          // 为不同食物类型设置不同的透明度
-          const opacities = [0.1, 0.2, 0.35, 0.5, 0.75, 1];
-          const opacity = opacities[idx] || 0.5;
-          
-          seg.style.backgroundColor = categoryColor;
-          seg.style.opacity = opacity;
+          // seg.style.background = `rgba(${baseColor[0]},${baseColor[1]},${baseColor[2]},${alphas[idx]})`;
+          seg.style.background = colors[idx];
           seg.style.transition = "height 0.5s, top 0.5s";
 
           seg.addEventListener("mouseenter", (event) => {
             tooltip.innerHTML = `<b>${country["Country Name"]}</b><br>${food.key}: $${value.toFixed(2)} intl $/person/day (PPP, constant 2021)`;
             tooltip.style.display = "block";
             positionTooltip(event, tooltip);
-            seg.style.opacity = "1";
           });
           seg.addEventListener("mousemove", (event) => {
             positionTooltip(event, tooltip);
           });
           seg.addEventListener("mouseleave", () => {
             tooltip.style.display = "none";
-            seg.style.opacity = opacity; 
           });
 
           document.querySelector("#renderer").appendChild(seg);
@@ -466,10 +426,6 @@ function drawCountryCostChart(transitionMode) {
     // Zuerst cost-Balken rendern (mit cost-Maximalwert abbilden)
     data.forEach((country, i) => {
       const cost = parseFloat(country["Cost"]);
-      const income = parseFloat(country["TagGNI"]);
-      const incomeCategory = getIncomeCategory(income);
-      const categoryColor = getIncomeCategoryColor(incomeCategory);
-    
       const barHeight = gmynd.map(cost, 0, maxCost, 0, chartHeight);
       const xPos = margin.left + i * (barWidth + gap);
       const yPos = margin.top + (chartHeight - barHeight);
@@ -481,13 +437,11 @@ function drawCountryCostChart(transitionMode) {
       bar.style.left = `${xPos}px`;
       bar.style.top = `${yPos}px`;
       bar.style.position = "absolute";
-      bar.style.backgroundColor = categoryColor;
       bar.style.transition = "height 0.5s, top 0.5s";
 
       document.querySelector("#renderer").appendChild(bar);
       bars.push(bar);
     });
-    void document.querySelector("#renderer").offsetHeight;
 
     // Erzwinge Reflow
     void document.querySelector("#renderer").offsetHeight;
@@ -513,9 +467,6 @@ function drawCountryCostChart(transitionMode) {
     // Zuerst cost-Balken rendern (mit cost-Maximalwert abbilden)
     data.forEach((country, i) => {
       const cost = parseFloat(country["Cost"]);
-      const income = parseFloat(country["TagGNI"]);
-      const incomeCategory = getIncomeCategory(income);
-      const categoryColor = getIncomeCategoryColor(incomeCategory);
       const barHeight = gmynd.map(cost, 0, maxCost, 0, chartHeight);
       const xPos = margin.left + i * (barWidth + gap);
       const yPos = margin.top + (chartHeight - barHeight);
@@ -527,8 +478,6 @@ function drawCountryCostChart(transitionMode) {
       bar.style.left = `${xPos}px`;
       bar.style.top = `${yPos}px`;
       bar.style.position = "absolute";
-      bar.style.backgroundColor = categoryColor; // 添加收入分类颜色
-      bar.style.opacity = "0.5";
       bar.style.transition = "height 0.5s, top 0.5s";
       document.querySelector("#renderer").appendChild(bar);
       bars.push(bar);
@@ -562,8 +511,6 @@ function drawCountryCostChart(transitionMode) {
       const income = parseFloat(country["TagGNI"]);
       const cost = parseFloat(country["Cost"]);
       const vergleich = parseFloat(country["Vergleich"]);
-      const incomeCategory = getIncomeCategory(income);
-      const categoryColor = getIncomeCategoryColor(incomeCategory);
       const barHeightIncome = gmynd.map(income, 0, maxIncome, 0, chartHeight);
       const barHeightCost = gmynd.map(cost, 0, maxIncome, 0, chartHeight);
       const xPos = margin.left + i * (barWidth + gap);
@@ -588,13 +535,10 @@ function drawCountryCostChart(transitionMode) {
       pinkBar.style.left = `${xPos}px`;
       pinkBar.style.top = `${margin.top + (chartHeight - barHeightCost)}px`;
       pinkBar.style.position = "absolute";
-      pinkBar.style.backgroundColor = categoryColor; // 设置收入分类颜色
-      pinkBar.style.opacity = "0.5";
       pinkBar.style.transition = "height 0.5s, top 0.5s";
       document.querySelector("#renderer").appendChild(pinkBar);
       bars.push(pinkBar);
     });
-    void document.querySelector("#renderer").offsetHeight;
 
     // Erzwinge Reflow
     void document.querySelector("#renderer").offsetHeight;
@@ -629,9 +573,6 @@ function drawCountryCostChart(transitionMode) {
   if (transitionMode === "ratioToIncome") {
     data.forEach((country, i) => {
       const vergleich = parseFloat(country["Vergleich"]);
-      const income = parseFloat(country["TagGNI"]);
-      const incomeCategory = getIncomeCategory(income);
-      const categoryColor = getIncomeCategoryColor(incomeCategory);
       const barHeightGray = gmynd.map(100, 0, maxVergleich, 0, chartHeight);
       const barHeightPink = gmynd.map(vergleich, 0, maxVergleich, 0, chartHeight);
       const xPos = margin.left + i * (barWidth + gap);
@@ -656,8 +597,6 @@ function drawCountryCostChart(transitionMode) {
       pinkBar.style.left = `${xPos}px`;
       pinkBar.style.top = `${margin.top + (chartHeight - barHeightPink)}px`;
       pinkBar.style.position = "absolute";
-      pinkBar.style.backgroundColor = categoryColor; // 设置收入分类颜色
-      pinkBar.style.opacity = "0.5";
       pinkBar.style.transition = "height 0.5s, top 0.5s";
       document.querySelector("#renderer").appendChild(pinkBar);
       bars.push(pinkBar);
@@ -694,10 +633,6 @@ function drawCountryCostChart(transitionMode) {
     const income = parseFloat(country["TagGNI"]);
     const vergleich = parseFloat(country["Vergleich"]);
     const fieldValue = parseFloat(country[currentField]);
-
-    const incomeCategory = getIncomeCategory(income);
-    const categoryColor = getIncomeCategoryColor(incomeCategory);
-    
     const barHeight = gmynd.map(
       fieldValue,
       0,
@@ -721,7 +656,6 @@ function drawCountryCostChart(transitionMode) {
       barIncome.style.left = `${xPos}px`;
       barIncome.style.top = `${margin.top + (chartHeight - gmynd.map(income, 0, maxIncome, 0, chartHeight))}px`;
       barIncome.style.position = "absolute";
-      // barIncome.style.backgroundColor = categoryColor;
 
       // cost-Balken (mit income-Maximalwert abbilden)
       let barCost = document.createElement("div");
@@ -731,8 +665,6 @@ function drawCountryCostChart(transitionMode) {
       barCost.style.left = `${xPos}px`;
       barCost.style.top = `${margin.top + (chartHeight - gmynd.map(cost, 0, maxIncome, 0, chartHeight))}px`;
       barCost.style.position = "absolute";
-      barCost.style.backgroundColor = categoryColor;
-      barCost.style.opacity = "0.5"; 
 
       // Interaktion: income
       barIncome.addEventListener('mouseenter', () => {
@@ -792,8 +724,6 @@ function drawCountryCostChart(transitionMode) {
       bar.style.height = `${barHeight}px`;
       bar.style.left = `${xPos}px`;
       bar.style.top = `${yPos}px`;
-      bar.style.backgroundColor = categoryColor;
-      bar.style.opacity = "0.5"; 
 
       bar.addEventListener('mouseenter', () => {
         let val = fieldValue;
@@ -1014,11 +944,6 @@ function barToScatterUltraSmoothTransition() {
     let endStates = [];
     data.forEach((country, i) => {
       const cost = parseFloat(country["Cost"]);
-
-      const income = parseFloat(country["TagGNI"]);
-      const incomeCategory = getIncomeCategory(income);
-      const categoryColor = getIncomeCategoryColor(incomeCategory);
-      
       const barHeight = gmynd.map(cost, 0, Math.max(...data.map(d => parseFloat(d["Cost"]))), 0, chartHeight);
       const xPos = margin.left + i * (barWidth + gap);
       const yPos = margin.top + (chartHeight - barHeight);
@@ -1039,7 +964,6 @@ function barToScatterUltraSmoothTransition() {
       bar.style.height = `${barHeight}px`;
       bar.style.left = `${xPos}px`;
       bar.style.top = `${yPos}px`;
-      bar.style.backgroundColor = categoryColor;
       bar.style.cursor = "pointer";
       bar.style.transition = "width 0.9s cubic-bezier(0.4, 0, 0.2, 1), height 0.9s cubic-bezier(0.4, 0, 0.2, 1), left 0.9s cubic-bezier(0.4, 0, 0.2, 1), top 0.9s cubic-bezier(0.4, 0, 0.2, 1), border-radius 0.9s cubic-bezier(0.4, 0, 0.2, 1)";
       document.querySelector("#renderer").appendChild(bar);
@@ -1132,10 +1056,6 @@ function barToScatterUltraSmoothTransition() {
   const prevMinR = Math.min(...data.map(d => parseFloat(d[prevRField])));
   const prevMaxR = Math.max(...data.map(d => parseFloat(d[prevRField])));
   data.forEach((country, i) => {
-    const income = parseFloat(country["TagGNI"]);
-    const incomeCategory = getIncomeCategory(income);
-    const categoryColor = getIncomeCategoryColor(incomeCategory);
-    
     const logMinX = Math.log10(minX);
     const logMaxX = Math.log10(maxX);
     const logMinY = Math.log10(minY);
@@ -1155,7 +1075,6 @@ function barToScatterUltraSmoothTransition() {
     dot.style.top = `${margin.top + y - prevR / 2}px`;
     dot.style.width = `${prevR}px`;
     dot.style.height = `${prevR}px`;
-    dot.style.backgroundColor = categoryColor; 
     dot.style.cursor = "pointer";
     dot.style.transition = "width 0.6s cubic-bezier(0.4, 0, 0.2, 1), height 0.6s cubic-bezier(0.4, 0, 0.2, 1), left 0.6s cubic-bezier(0.4, 0, 0.2, 1), top 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
     document.querySelector("#renderer").appendChild(dot);
@@ -1399,11 +1318,6 @@ function drawOverviewChart() {
 
     const d = node.country;
     const ratio = parseFloat(d.Vergleich);
-    const income = parseFloat(d.TagGNI);
-    
-    // 添加收入分类
-    const incomeCategory = getIncomeCategory(income);
-    const categoryColor = getIncomeCategoryColor(incomeCategory);
 
     // Group Container
     let group = document.createElement("div");
@@ -1428,8 +1342,8 @@ function drawOverviewChart() {
       incomeCircle.style.width = incomeCircle.style.height = "0px";
       incomeCircle.style.left = incomeCircle.style.top = "50%";
       incomeCircle.style.transform = "translate(-50%, -50%)";
-      // incomeCircle.style.border = "0px solid #02947B";
-      incomeCircle.style.border = `0px solid ${categoryColor}`;       incomeCircle.style.opacity = "0.5";
+      incomeCircle.style.border = "0px solid #02947B";
+      incomeCircle.style.opacity = "0.5";
       incomeCircle.style.transition = "width 0.6s ease-out, height 0.6s ease-out, border-width 0.6s ease-out";
       group.appendChild(incomeCircle);
     } else {
@@ -1439,8 +1353,7 @@ function drawOverviewChart() {
       costCircle.style.width = costCircle.style.height = "0px";
       costCircle.style.left = costCircle.style.top = "50%";
       costCircle.style.transform = "translate(-50%, -50%)";
-      // costCircle.style.border = "0px solid #FD96B3";
-      costCircle.style.border = `0px solid ${categoryColor}`; // 使用收入分类颜色
+      costCircle.style.border = "0px solid #FD96B3";
       costCircle.style.opacity = "0.4";
       costCircle.style.transition = "width 0.6s ease-out, height 0.6s ease-out, border-width 0.6s ease-out";
       group.appendChild(costCircle);
