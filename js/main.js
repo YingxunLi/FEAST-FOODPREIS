@@ -244,6 +244,24 @@ function drawCountryCostChart(transitionMode) {
   // alte weg
   let oldLegend = document.getElementById("food-legend-area");
   if (oldLegend) oldLegend.remove();
+  // 清理旧的轴容器 - 确保在所有情况下都清理
+  let oldAxisContainer = document.getElementById("bottom-axis-container");
+  if (oldAxisContainer) oldAxisContainer.remove();
+
+
+   // Y轴标签
+  let yAxisLabel = document.createElement("div");
+  yAxisLabel.className = "y-axis-label";
+  yAxisLabel.textContent = "Cost of a healthy diet (current PPP$/person/day)";
+  yAxisLabel.style.position = "absolute";
+  yAxisLabel.style.left = "-64px";
+  yAxisLabel.style.top = `${margin.top + (stageHeight - margin.top - margin.bottom) / 2}px`;
+  yAxisLabel.style.transform = "translateY(-50%) rotate(-90deg)";
+  yAxisLabel.style.transformOrigin = "center";
+  yAxisLabel.style.fontSize = "12px";
+  yAxisLabel.style.color = "#E1E5E8";
+  yAxisLabel.style.whiteSpace = "nowrap";
+  document.querySelector("#renderer").appendChild(yAxisLabel);
 
   // legendArea-checkbox
   if (currentField === "Cost") {
@@ -273,9 +291,19 @@ function drawCountryCostChart(transitionMode) {
     const chartWidth = stageWidth - margin.left - margin.right;
     let legendArea = document.createElement("div");
     legendArea.id = "food-legend-area";
-    legendArea.style.top = `${stageHeight - margin.bottom + 10}px`;
-    legendArea.style.left = margin.left + "px";
-    legendArea.style.width = (stageWidth - margin.left - margin.right) + "px";
+    legendArea.style.position = "absolute";
+    legendArea.style.top = `${margin.top}px`;
+    legendArea.style.left = `${margin.left}px`;
+    legendArea.style.display = "flex";
+    legendArea.style.flexDirection = "column";
+    legendArea.style.alignItems = "flex-start";
+    legendArea.style.gap = "8px";
+    legendArea.style.padding = "0px";
+    legendArea.style.borderRadius = "6px";
+    legendArea.style.minWidth = "180px";
+    legendArea.style.backgroundColor = "rgba(255, 255, 255, 0.9)";
+
+
     const legendItems = [
       {
         key: "Select All",
@@ -310,10 +338,49 @@ function drawCountryCostChart(transitionMode) {
       legendArea.appendChild(item);
     });
     renderer.parentNode.appendChild(legendArea);
-  } else {
+
+     // 添加底部轴
+    if (currentPage === "bar") {
+      let axisContainer = document.createElement("div");
+      axisContainer.id = "bottom-axis-container";
+      axisContainer.style.position = "absolute";
+      axisContainer.style.top = `${stageHeight - margin.bottom + 10}px`;
+      axisContainer.style.left = `${margin.left}px`;
+      axisContainer.style.width = `${chartWidth}px`;
+      axisContainer.style.height = "40px";
+
+
+      // 左侧标签 - 和Y轴标签一样的样式
+      let leftLabel = document.createElement("div");
+      leftLabel.textContent = "Poorest Countries";
+      leftLabel.style.position = "absolute";
+      leftLabel.style.left = "0px";
+      leftLabel.style.top = "0px";
+      leftLabel.style.fontSize = "12px";
+      leftLabel.style.color = "#E1E5E8";
+      leftLabel.style.fontWeight = "400";
+      leftLabel.style.whiteSpace = "nowrap";
+      axisContainer.appendChild(leftLabel);
+
+      // 右侧标签 - 和Y轴标签一样的样式
+      let rightLabel = document.createElement("div");
+      rightLabel.textContent = "Richest Countries";
+      rightLabel.style.position = "absolute";
+      rightLabel.style.right = "0px";
+      rightLabel.style.top = "0px";
+      rightLabel.style.fontSize = "12px";
+      rightLabel.style.color = "#E1E5E8";
+      rightLabel.style.fontWeight = "400";
+      rightLabel.style.whiteSpace = "nowrap";
+      axisContainer.appendChild(rightLabel);
+
+      renderer.parentNode.appendChild(axisContainer);
+    }
+    } else {
     // income & ratio brauchen keine legend
     let oldLegend = document.getElementById("food-legend-area");
     if (oldLegend) oldLegend.remove();
+    
     selectedFoodKey = null;
   }
 
@@ -364,7 +431,7 @@ function drawCountryCostChart(transitionMode) {
         document.querySelector("#renderer").appendChild(bar);
 
         bar.addEventListener('mouseenter', (event) => {
-          tooltip.innerHTML = `<b>${country["Country Name"]}</b><br>Select All: $${total.toFixed(2)}`;
+          tooltip.innerHTML = `<b>${country["Country Name"]}</b><br>Total Cost: $${total.toFixed(2)}`;
           tooltip.style.display = "block";
           positionTooltip(event, tooltip);
           bar.classList.add('active');
