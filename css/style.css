@@ -194,6 +194,7 @@ body {
     background-color: #E1E5E8;
     opacity: 0.5;
     z-index: 1;
+    pointer-events: none; 
 }
 
 .bar.ratio-bg:hover {
@@ -435,7 +436,7 @@ body {
     position: absolute;
     border-radius: 50%;
     /* background: #E1E5E8; */
-    background: #6a0036;
+    background: #f3ca00;
     opacity: 0.5;
     pointer-events: none;
 }
