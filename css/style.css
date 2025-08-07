@@ -443,7 +443,7 @@ body {
 
 .overview-circle-green.hover,
 .overview-circle-pink.hover {
-    opacity: 0.5 !important;
+    opacity: 1 !important;
     z-index: 1000;
 }
 
