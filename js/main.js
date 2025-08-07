@@ -26,9 +26,9 @@ function getIncomeCategory(income) {
 function getIncomeCategoryColor(category) {
   const colors = {
     'low': '#ae4261',        // 最浅粉色
-    'lower-middle': '#f3ca00', // 浅粉色
-    'upper-middle': '#00a36f', // 中粉色
-    'high': '#f0a08c'         // 深粉色
+    'lower-middle': '#266721', // 浅粉色
+    'upper-middle': '#f3ca00', // 中粉色
+    'high': '#243285'         // 深粉色
     //     'low': '#FED5E1',        // 最浅粉色
     // 'lower-middle': '#FDB8CD', // 浅粉色
     // 'upper-middle': '#FD96B3', // 中粉色

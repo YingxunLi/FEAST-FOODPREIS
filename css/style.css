@@ -417,7 +417,7 @@ body {
     opacity: 0.5; */
     background: none;
     pointer-events: none;
-    opacity: 0.5;
+    opacity: 0.2;
     transition: opacity 0.2s;
 }
 
@@ -428,7 +428,7 @@ body {
     opacity: 0.4; */
     background: none;
     pointer-events: none;
-    opacity: 0.4;
+    opacity: 0.2;
     transition: opacity 0.2s;
 }
 
@@ -436,14 +436,14 @@ body {
     position: absolute;
     border-radius: 50%;
     /* background: #E1E5E8; */
-    background: #f3ca00;
+    background: #6a0036;
     opacity: 0.5;
     pointer-events: none;
 }
 
 .overview-circle-green.hover,
 .overview-circle-pink.hover {
-    opacity: 1 !important;
+    opacity: 0.5 !important;
     z-index: 1000;
 }
 
