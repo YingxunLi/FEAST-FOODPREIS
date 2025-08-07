@@ -254,7 +254,7 @@ function drawCountryCostChart(transitionMode) {
   yAxisLabel.className = "y-axis-label";
   yAxisLabel.textContent = "Cost of a healthy diet (current PPP$/person/day)";
   yAxisLabel.style.position = "absolute";
-  yAxisLabel.style.left = "-64px";
+  yAxisLabel.style.left = "-74px";
   yAxisLabel.style.top = `${margin.top + (stageHeight - margin.top - margin.bottom) / 2}px`;
   yAxisLabel.style.transform = "translateY(-50%) rotate(-90deg)";
   yAxisLabel.style.transformOrigin = "center";
